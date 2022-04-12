@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Nintendo Uploady
 // @namespace    https://gazellegames.net/
-// @version      0.0.4
+// @version      0.0.4.1
 // @match        https://gazellegames.net/upload.php
 // @match        https://gazellegames.net/torrents.php?action=editgroup*
 // @match        https://www.nintendo.com/store/products/*/*
@@ -52,10 +52,10 @@
     {regex: /ESRB E10\+/, replacement: '12+'},
     {regex: /ESRB E/, replacement: '7+'},
     {regex: /ESRB EC/, replacement: '3+'},
-    {regex: /Cero Z/, replacement: '18+'},
-    {regex: /Cero [CD]/, replacement: '16+'},
-    {regex: /Cero B/, replacement: '12+'},
-    {regex: /Cero A.*/, replacement: '3+'},
+    {regex: /CERO Z/, replacement: '18+'},
+    {regex: /CERO [CD]/, replacement: '16+'},
+    {regex: /CERO B/, replacement: '12+'},
+    {regex: /CERO A.*/, replacement: '3+'},
     {regex: /PEGI (\d+\+)/, replacement: '$1'},
   ];
 
