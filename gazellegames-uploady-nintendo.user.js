@@ -56,7 +56,6 @@
     {regex: /CERO [CD]/, replacement: '16+'},
     {regex: /CERO B/, replacement: '12+'},
     {regex: /CERO A.*/, replacement: '3+'},
-    {regex: /PEGI (\d+\+)/, replacement: '$1'},
   ];
 
   const bbConverter = new HTML2BBCode();
@@ -66,14 +65,15 @@
         jqObj
           .html()
           .replace(/<h2\s+[^>]+>/g, '<h2>')
-          .replace(/<\/div>/g, '<br/></div>'),
+          .replace(/<\/(div|p)>/g, '</$1><br/>'),
       )
       .toString()
       .replace(/\[\/?h2]/g, '==')
       .replace(/\[\/?h3]/g, '===')
       .replace(/\[\/?h4]/g, '====')
       .replace(/\[li\](.*)\[\/li\]/g, '[*]$1')
-      .replace(/\[\/?[uo]l\]/g, '');
+      .replace(/\[\/?[uo]l\]/g, '')
+      .replace(/^\n- /gm, '[*]');
   }
 
   $.fn.extend({
@@ -97,37 +97,73 @@
     saveLink.off('click.validate');
     const nintendo = GM_getValue('nintendo', {});
 
-    // #region Fetch wiki info JP
     nintendo.nintendo = window.location.toString();
-    nintendo.platform = $('th:contains("対応ハード")').next().text().trim();
-    nintendo.title = $('.productDetail--headline__title').text().trim();
-    const publisher = $('th:contains("メーカー")').next().text().trim();
-    nintendo.description =
-      `[*]Publisher: ${publisher}
-` +
-      html2bb(
+
+    if (window.location.hostname === 'store-jp.nintendo.com') {
+      // #region Fetch wiki info JP
+      nintendo.platform = $('th:contains("対応ハード")').next().text().trim();
+      nintendo.title = $('.productDetail--headline__title').text().trim();
+      const publisher = $('th:contains("メーカー")').next().text().trim();
+      const languages = $('th:contains("対応言語")')
+        .next()
+        .text()
+        .trim()
+        .replace(/日本語/, 'Japanese');
+      const description = html2bb(
         $('<div>').append(
           $('.productDetail--catchphrase__title, .productDetail--catchphrase__longDescription').clone(),
         ),
       );
-    nintendo.tags = $('.productDetail--tag__label')
-      .map((_, elem) => $(elem).text().trim())
-      .toArray();
-    nintendo.languages = $('th:contains("対応言語")')
-      .next()
-      .text()
-      .trim()
-      .replace(/日本語/, 'Japanese');
-    nintendo.year = $('th:contains("配信日")').next().getYear();
-    nintendo.rating = $('.productDetail--CERO__rating img').attr('alt');
+      nintendo.description = `[*]Publisher: ${publisher}
+[*]Languages: ${languages}
+${description}
 
-    nintendo.cover = $('ul.slick-dots li:first-of-type() img').attr('src').split('?')[0];
-    nintendo.screenshots = $('.slick-track li.slick-slide:not(.slick-cloned) img')
-      .map((_, elem) => $(elem).attr('src').split('?')[0])
-      .toArray();
-    // #endregion Fetch wiki info
+[spoiler=Original Japanese description]
+${description}
+[/spoiler]`;
 
-    nintendo.alternate_titles = [];
+      nintendo.tags = $('.productDetail--tag__label')
+        .map((_, elem) => $(elem).text().trim())
+        .toArray();
+      nintendo.year = $('th:contains("配信日")').next().getYear();
+      nintendo.rating = $('.productDetail--CERO__rating img').attr('alt');
+
+      nintendo.cover = $('ul.slick-dots li:first-of-type() img').attr('src').split('?')[0];
+      nintendo.screenshots = $('.slick-track li.slick-slide:not(.slick-cloned) img')
+        .map((_, elem) => $(elem).attr('src').split('?')[0])
+        .toArray();
+
+      nintendo.alternate_titles = [];
+      // #endregion Fetch wiki info JP
+    } else {
+      // #region Fetch wiki info UK, test NA
+      nintendo.platform = $('.listwheader-container .info_system .game_info_title:contains("System")')
+        .next()
+        .text()
+        .trim();
+      nintendo.title = $('.gamepage-header-info h1').text().trim();
+      const publisher = $('#gameDetails .game_info_title:contains("Publisher")').next().text().trim();
+      const languages = $('.listwheader-container .info_system .game_info_title:contains("Languages")').next().text();
+      const description = html2bb($('.content')); // Oddly simple
+      nintendo.description = `[*]Publisher: ${publisher}
+[*]Langauges: ${languages}
+
+${description}`;
+
+      nintendo.tags = $('#gameDetails .game_info_title:contains("Categories")').next().text().trim().split(', ');
+      nintendo.year = $('.listwheader-container .info_system .game_info_title:contains("Release Date")')
+        .next()
+        .getYear();
+      nintendo.rating = $('#gameDetails .game_info_title:contains("Age Rating")').next().text().trim();
+
+      const videoInfo = _gItems.filter((o) => o.isVideo);
+      if (videoInfo) {
+        nintendo.trailer = videoInfo[videoInfo.length - 1].video_content_url;
+      }
+      nintendo.cover = $('.packshot-hires img').attr('src').split('?')[0];
+      nintendo.screenshots = _gItems.filter((o) => !o.isVideo).map((i) => i.image_url.split('?')[0]);
+      // #endregion Fetch wiki info UK
+    }
 
     GM_setValue('nintendo', nintendo);
     saveLink.on('click.complete', () => window.close());
@@ -160,6 +196,7 @@
 
   function validateSearchedValues() {
     const nintendo = GM_getValue('nintendo', {});
+    console.log(nintendo);
     if (nintendo.hasOwnProperty('tags'))
       tagReplacements.forEach(
         ({regex, replacement}) =>
@@ -200,6 +237,7 @@
       $("input[name='image']").val(nintendo.cover);
     }
 
+    if (nintendo.hasOwnProperty('trailer')) $('#trailer').val(nintendo.trailer);
     const add_screen = $("a:contains('+')");
     const screenshotFields = $("[name='screens[]']").length;
     nintendo.screenshots.forEach(function (screenshot, index) {
@@ -222,7 +260,7 @@
       $('<input id="nintendo_uploady_search" type="button" value="Search Nintendo"/>').click(function () {
         const title = $(titleFieldSelector).val();
         if (!title) return;
-        const titleURIComponent = encodeURIComponent(title.replace(/\s+/, '+'));
+        const titleURIComponent = encodeURIComponent(title);
 
         let nintendoUrl;
         if (title.hasJapanese()) {
@@ -235,7 +273,7 @@
         GM_setValue('nintendo', {});
 
         $(window).focus(() => {
-          if (GM_getValue('nintendo', {}).hasOwnProperty('platform')) validateSearchedValues(); // Maybe swap platform for another value
+          if (GM_getValue('nintendo', {}).hasOwnProperty('platform')) validateSearchedValues();
         });
       }),
     );
