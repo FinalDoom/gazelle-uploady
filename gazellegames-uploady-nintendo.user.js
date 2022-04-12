@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Nintendo Uploady
 // @namespace    https://gazellegames.net/
-// @version      0.0.4.1
+// @version      0.5.2
 // @match        https://gazellegames.net/upload.php
 // @match        https://gazellegames.net/torrents.php?action=editgroup*
 // @match        https://www.nintendo.com/store/products/*/*
@@ -56,6 +56,7 @@
     {regex: /CERO [CD]/, replacement: '16+'},
     {regex: /CERO B/, replacement: '12+'},
     {regex: /CERO A.*/, replacement: '3+'},
+    {regex: /PEGI (\d+)/, replacement: '$1+'},
   ];
 
   const bbConverter = new HTML2BBCode();
@@ -151,10 +152,8 @@ ${description}
 ${description}`;
 
       nintendo.tags = $('#gameDetails .game_info_title:contains("Categories")').next().text().trim().split(', ');
-      nintendo.year = $('.listwheader-container .info_system .game_info_title:contains("Release Date")')
-        .next()
-        .getYear();
-      nintendo.rating = $('#gameDetails .game_info_title:contains("Age Rating")').next().text().trim();
+      nintendo.year = $('.game_info_title:contains("Release date")').next().getYear();
+      nintendo.rating = $('#gameDetails .game_info_title:contains("Age rating")').next().text().trim();
 
       const videoInfo = _gItems.filter((o) => o.isVideo);
       if (videoInfo) {
