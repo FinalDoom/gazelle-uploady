@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Nintendo Uploady
 // @namespace    https://gazellegames.net/
-// @version      0.0.2
+// @version      0.0.4
 // @match        https://gazellegames.net/upload.php
 // @match        https://gazellegames.net/torrents.php?action=editgroup*
 // @match        https://www.nintendo.com/store/products/*/*
@@ -37,26 +37,26 @@
     {regex: /,.,/g, replacement: ','},
   ];
   const platformReplacements = [
-    {regex: /Nintendo Entertainment System'/, replacement: 'NES'},
-    {regex: /Nintendo 64DD'/, replacement: 'Nintendo 64'},
-    {regex: /GameCube'/, replacement: 'Nintendo GameCube'},
-    {regex: /Super Nintendo Entertainment System'/, replacement: 'Super NES'},
-    {regex: /Wii Shop'/, replacement: 'Wii'},
-    {regex: /Nintendo Switch'/, replacement: 'Switch'},
+    {regex: /Nintendo Entertainment System/, replacement: 'NES'},
+    {regex: /Nintendo 64DD/, replacement: 'Nintendo 64'},
+    {regex: /GameCube/, replacement: 'Nintendo GameCube'},
+    {regex: /Super Nintendo Entertainment System/, replacement: 'Super NES'},
+    {regex: /Wii Shop/, replacement: 'Wii'},
+    {regex: /Nintendo Switch/, replacement: 'Switch'},
   ];
   const ratingReplacements = [
     // Descending order because of regex overlap / consistency
-    {regex: /ESRB: AO/, replacement: '18+'},
-    {regex: /ESRB: M/, replacement: '16+'},
-    {regex: /ESRB: T/, replacement: '12+'},
-    {regex: /ESRB: E10\+/, replacement: '12+'},
-    {regex: /ESRB: E/, replacement: '7+'},
-    {regex: /ESRB: EC/, replacement: '3+'},
-    {regex: /Cero: Z/, replacement: '18+'},
-    {regex: /Cero: [CD]/, replacement: '16+'},
-    {regex: /Cero: B/, replacement: '12+'},
-    {regex: /Cero: A.*/, replacement: '3+'},
-    {regex: /PEGI: (\d+\+)/, replacement: '$1'},
+    {regex: /ESRB AO/, replacement: '18+'},
+    {regex: /ESRB M/, replacement: '16+'},
+    {regex: /ESRB T/, replacement: '12+'},
+    {regex: /ESRB E10\+/, replacement: '12+'},
+    {regex: /ESRB E/, replacement: '7+'},
+    {regex: /ESRB EC/, replacement: '3+'},
+    {regex: /Cero Z/, replacement: '18+'},
+    {regex: /Cero [CD]/, replacement: '16+'},
+    {regex: /Cero B/, replacement: '12+'},
+    {regex: /Cero A.*/, replacement: '3+'},
+    {regex: /PEGI (\d+\+)/, replacement: '$1'},
   ];
 
   const bbConverter = new HTML2BBCode();
