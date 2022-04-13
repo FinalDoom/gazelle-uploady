@@ -1,7 +1,7 @@
 //
 // #region Postimage proxy
 //
-function proxyThroughPostImg(element) {
+function proxyThroughPostImg(window, element) {
   const postimage = GM_getValue('postimage', {});
   const giantbomb = postimage.hasOwnProperty('giantbomb') ? postimage.giantbomb : {};
   giantbomb[element.id] = {url: element.value};
@@ -58,7 +58,7 @@ function proxyThroughPostImg(element) {
   }
 }
 
-function executePostimages() {
+function executePostimages(window) {
   const postimage = GM_getValue('postimage', {});
   if ($.isEmptyObject(postimage) || !postimage.hasOwnProperty('giantbomb')) return;
   const giantbomb = postimage.giantbomb;
@@ -157,7 +157,7 @@ function executePostimages() {
 //
 // #region Patch ptpimg upload buttons
 //
-function patchPtpimgButtons() {
+function patchPtpimgButtons(window) {
   console.log('Patching PTPImg buttons for PostImage fallback');
   if (window.imageUpload.toString().indexOf('$.ajax(') === -1) {
     window.imageOnLoad = (response, element) => {
@@ -165,7 +165,7 @@ function patchPtpimgButtons() {
         $(element)
           .addClass('error')
           .after($(`<label class="error" for="${element.id}">Err. PTPImg all, then click PostImage.</label>`));
-        proxyThroughPostImg(element);
+        proxyThroughPostImg(window, element);
       } else element.value = response;
     };
     window.imageUpload = (url, element) => {
@@ -174,7 +174,7 @@ function patchPtpimgButtons() {
         url: 'imgup.php',
         data: {img: url.split('?')[0]},
         success: (_, __, xhr) => imageOnLoad(xhr.responseText, element),
-        error: (element) => proxyThroughPostImg(element),
+        error: (element) => proxyThroughPostImg(window, element),
       });
     };
   }
@@ -182,5 +182,3 @@ function patchPtpimgButtons() {
 //
 // #endregion
 //
-
-window.uploadyCommon = {patchPtpimgButtons: patchPtpimgButtons, executePostimages: executePostimages};

@@ -350,7 +350,7 @@
   const isWikiPage = () => window.location.pathname === $('.sub-nav li').eq(0).find('a').attr('href');
 
   function validateSearchedValues() {
-    patchPtpimgButtons();
+    patchPtpimgButtons(window);
     const giantbomb = GM_getValue('giantbomb', {});
     if (giantbomb.hasOwnProperty('tags'))
       tagReplacements.forEach(
@@ -437,7 +437,7 @@
   } else if (window.location.hostname === 'www.giantbomb.com' && isWikiPage()) {
     addGiantbombSaveButton();
   } else if (['postimages.org', 'postimg.cc'].includes(window.location.hostname)) {
-    executePostimages();
+    executePostimages(window);
   }
 })(
   unsafeWindow || window,
