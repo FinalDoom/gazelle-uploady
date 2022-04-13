@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         GazelleGames Nintendo Uploady
 // @namespace    https://gazellegames.net/
-// @version      0.5.2
-// @match        https://gazellegames.net/upload.php
+// @version      0.5.5
+// @match        https://gazellegames.net/upload.php*
 // @match        https://gazellegames.net/torrents.php?action=editgroup*
 // @match        https://www.nintendo.com/store/products/*/*
 // @match        https://www.nintendo.co.uk/Games/*
@@ -27,6 +27,8 @@
   const tagReplacements = [
     {regex: /テキストアドベンチャー/, replacement: 'visual.novel'},
     {regex: /キャラクターボイス/, replacement: 'japanese.voiced'},
+    {regex: /ストラテジー/, replacement: 'strategy'},
+    {regex: /ロールプレイング/, replacement: 'role.playing.game'},
     {
       regex:
         /(baseball|basketball|billiards|bowling|boxing|cricket|football|golf|hockey|skateboarding|snowboarding|skiing|soccer|surfing|tennis|track.and.field|wrestling)/,
@@ -98,8 +100,6 @@
     saveLink.off('click.validate');
     const nintendo = GM_getValue('nintendo', {});
 
-    nintendo.nintendo = window.location.toString();
-
     if (window.location.hostname === 'store-jp.nintendo.com') {
       // #region Fetch wiki info JP
       nintendo.platform = $('th:contains("対応ハード")').next().text().trim();
@@ -117,9 +117,12 @@
       );
       nintendo.description = `[*]Publisher: ${publisher}
 [*]Languages: ${languages}
+[*]Store page: [url=${window.location.toLocaleString()}]${window.location.toLocaleString()}[/url]
+
 ${description}
 
 [spoiler=Original Japanese description]
+
 ${description}
 [/spoiler]`;
 
@@ -148,15 +151,20 @@ ${description}
       const description = html2bb($('.content')); // Oddly simple
       nintendo.description = `[*]Publisher: ${publisher}
 [*]Langauges: ${languages}
+[*]Store page: [url=${window.location.toLocaleString()}]${window.location.toLocaleString()}[/url]
 
 ${description}`;
 
       nintendo.tags = $('#gameDetails .game_info_title:contains("Categories")').next().text().trim().split(', ');
       nintendo.year = $('.game_info_title:contains("Release date")').next().getYear();
-      nintendo.rating = $('#gameDetails .game_info_title:contains("Age rating")').next().text().trim();
+      nintendo.rating = $('#gameDetails .game_info_title:contains("Age rating")')
+        .next()
+        .find('.age-rating__icon')
+        .text()
+        .trim();
 
       const videoInfo = _gItems.filter((o) => o.isVideo);
-      if (videoInfo) {
+      if (videoInfo && videoInfo[videoInfo.length - 1]) {
         nintendo.trailer = videoInfo[videoInfo.length - 1].video_content_url;
       }
       nintendo.cover = $('.packshot-hires img').attr('src').split('?')[0];
@@ -211,7 +219,6 @@ ${description}`;
       );
 
     if (isNewGroup()) {
-      $('#giantbomburi').val(nintendo.nintendo);
       $(`#Rating option:contains('${nintendo.rating}')`).prop('selected', true);
       $('#aliases').val(
         Array.from(new Set(nintendo.alternate_titles))
