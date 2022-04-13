@@ -30,7 +30,7 @@ function proxyThroughPostImg(window, element, siteKey) {
             const unproxied = postimage[siteKey] || {};
             const proxied = postimageProxied[siteKey];
             Object.entries(proxied).forEach(([id, img]) => {
-              $(`#${id}`).val(img.url);
+              $(`#${id}`).val(img.url).change();
               delete unproxied[id];
             });
             if ($.isEmptyObject(unproxied)) delete postimage[siteKey];
