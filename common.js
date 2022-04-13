@@ -1,11 +1,11 @@
 //
 // #region Postimage proxy
 //
-function proxyThroughPostImg(window, element) {
+function proxyThroughPostImg(window, element, siteKey) {
   const postimage = GM_getValue('postimage', {});
-  const giantbomb = postimage.hasOwnProperty('giantbomb') ? postimage.giantbomb : {};
-  giantbomb[element.id] = {url: element.value};
-  postimage.giantbomb = giantbomb;
+  const siteImages = postimage.hasOwnProperty(siteKey) ? postimage[siteKey] : {};
+  siteImages[element.id] = {url: element.value};
+  postimage[siteKey] = siteImages;
   GM_setValue('postimage', postimage);
   if (!$('#postimage_proxy').length) {
     let postimageButton;
@@ -25,16 +25,16 @@ function proxyThroughPostImg(window, element) {
         $(window).on('focus.postimage', () => {
           const postimage = GM_getValue('postimage', {});
           const postimageProxied = GM_getValue('postimage-proxied', {});
-          if (postimageProxied.hasOwnProperty('giantbomb')) {
+          if (postimageProxied.hasOwnProperty(siteKey)) {
             $(window).off('focus.postimage');
-            const unproxied = postimage.giantbomb || {};
-            const proxied = postimageProxied.giantbomb;
+            const unproxied = postimage[siteKey] || {};
+            const proxied = postimageProxied[siteKey];
             Object.entries(proxied).forEach(([id, img]) => {
               $(`#${id}`).val(img.url);
               delete unproxied[id];
             });
-            if ($.isEmptyObject(unproxied)) delete postimage.giantbomb;
-            else postimage.giantbomb = unproxied;
+            if ($.isEmptyObject(unproxied)) delete postimage[siteKey];
+            else postimage[siteKey] = unproxied;
             if ($.isEmptyObject(postimage)) {
               GM_deleteValue('postimage');
               postimageButton.remove();
@@ -47,8 +47,8 @@ function proxyThroughPostImg(window, element) {
                   .after($(`<label class="error" for="${id}">PostImage failed. Check URL.</label>`)),
               );
             }
-            if ($.isEmptyObject(proxied)) delete postimageProxied.giantbomb;
-            else postimageProxied.giantbomb = proxied;
+            if ($.isEmptyObject(proxied)) delete postimageProxied[siteKey];
+            else postimageProxied[siteKey] = proxied;
             if ($.isEmptyObject(postimageProxied)) GM_deleteValue('postimage-proxied');
             else GM_setValue('postimage-proxied', postimageProxied);
           }
@@ -58,11 +58,11 @@ function proxyThroughPostImg(window, element) {
   }
 }
 
-function executePostimages(window) {
+function executePostimages(window, siteKey) {
   const postimage = GM_getValue('postimage', {});
-  if ($.isEmptyObject(postimage) || !postimage.hasOwnProperty('giantbomb')) return;
-  const giantbomb = postimage.giantbomb;
-  if ($.isEmptyObject(giantbomb)) return;
+  if ($.isEmptyObject(postimage) || !postimage.hasOwnProperty(siteKey)) return;
+  const siteImages = postimage[siteKey];
+  if ($.isEmptyObject(siteImages)) return;
   let overlay;
   $('body').before(
     $('<div id="postimages-overlay">')
@@ -96,7 +96,7 @@ function executePostimages(window) {
     $('#links')
       .focus()
       .val(
-        Object.values(giantbomb)
+        Object.values(siteImages)
           .map((img) => img.url)
           .join('\n'),
       )
@@ -106,11 +106,11 @@ function executePostimages(window) {
     window.setTimeout(function postimageErrorCheck() {
       if (!$('.progress:visible').length && $('.queue-item.error').length) {
         $('.queue-item.error .filename').each(function () {
-          Object.values(giantbomb).find((obj) => obj.url === $(this).text().trim()).error = true;
+          Object.values(siteImages).find((obj) => obj.url === $(this).text().trim()).error = true;
         });
-        postimage.giantbomb = giantbomb;
-        GM_setValue('postimage', giantbomb);
-        if (Object.values(giantbomb).every((img) => img.error)) {
+        postimage[siteKey] = siteImages;
+        GM_setValue('postimage', postimage);
+        if (Object.values(siteImages).every((img) => img.error)) {
           overlay.text('All image URLs errored. Please check your URLs. Click to close overlay.');
           $('#postimages-overlay')
             .click(function () {
@@ -130,16 +130,16 @@ function executePostimages(window) {
     if (!$('#embed_box').length) {
       // #region single link
       const link = $('#code_direct').val().trim();
-      const id = Object.entries(giantbomb).find(([_, img]) => !img.error)[0];
-      GM_setValue('postimage-proxied', {...GM_getValue('postimage-proxied', {}), giantbomb: {[id]: {url: link}}});
+      const id = Object.entries(siteImages).find(([_, img]) => !img.error)[0];
+      GM_setValue('postimage-proxied', {...GM_getValue('postimage-proxied', {}), [siteKey]: {[id]: {url: link}}});
       // #endregion single link
     } else {
       // #region multple links
       $('#embed_box').val('code_direct').change(); // 'Direct link'
       $('#embed_layout').val('1').change(); // '1 Column'
       const links = $('#code_box').val().trim().split('\n');
-      proxied.giantbomb = Object.fromEntries(
-        Object.entries(giantbomb)
+      proxied[siteKey] = Object.fromEntries(
+        Object.entries(siteImages)
           .filter(([_, img]) => !img.error)
           .map(([id, img], i) => [id, {...img, url: links[i]}]),
       );
@@ -157,7 +157,7 @@ function executePostimages(window) {
 //
 // #region Patch ptpimg upload buttons
 //
-function patchPtpimgButtons(window) {
+function patchPtpimgButtons(window, siteKey) {
   console.log('Patching PTPImg buttons for PostImage fallback');
   if (window.imageUpload.toString().indexOf('$.ajax(') === -1) {
     window.imageOnLoad = (response, element) => {
@@ -165,7 +165,7 @@ function patchPtpimgButtons(window) {
         $(element)
           .addClass('error')
           .after($(`<label class="error" for="${element.id}">Err. PTPImg all, then click PostImage.</label>`));
-        proxyThroughPostImg(window, element);
+        proxyThroughPostImg(window, element, siteKey);
       } else element.value = response;
     };
     window.imageUpload = (url, element) => {
@@ -174,7 +174,7 @@ function patchPtpimgButtons(window) {
         url: 'imgup.php',
         data: {img: url.split('?')[0]},
         success: (_, __, xhr) => imageOnLoad(xhr.responseText, element),
-        error: (element) => proxyThroughPostImg(window, element),
+        error: (element) => proxyThroughPostImg(window, element, siteKey),
       });
     };
   }

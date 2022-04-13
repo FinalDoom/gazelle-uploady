@@ -1,22 +1,26 @@
 // ==UserScript==
 // @name         GazelleGames Nintendo Uploady
 // @namespace    https://gazellegames.net/
-// @version      0.5.5
+// @version      0.6.0
+// @description  Uploady for Nintendo sites
+// @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
 // @match        https://gazellegames.net/torrents.php?action=editgroup*
 // @match        https://www.nintendo.com/store/products/*/*
 // @match        https://www.nintendo.co.uk/Games/*
 // @match        https://store-jp.nintendo.com/list/software/*
-// @description  Uploady for Nintendo sites
-// @author       FinalDoom
+// @match        https://postimages.org/web
+// @match        https://postimg.cc/gallery/*/*
+// @match        https://postimg.cc/*/*
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_deleteValue
 // @require      https://code.jquery.com/jquery-3.6.0.min.js
 // @require      https://raw.githubusercontent.com/tengattack/html2bbcode.js/master/lib/html2bbcode.js
+// @require      https://raw.githubusercontent.com/FinalDoom/gazelle-uploady/master/common.js
 // ==/UserScript==
 
-(function (window, $, {HTML2BBCode}) {
+(function (window, $, {HTML2BBCode}, patchPtpimgButtons, executePostimages) {
   ('use strict');
 
   const japaneseTextRE = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/g;
@@ -61,6 +65,7 @@
     {regex: /PEGI (\d+)/, replacement: '$1+'},
   ];
 
+  const siteKey = 'nintendo';
   const bbConverter = new HTML2BBCode();
   function html2bb(jqObj) {
     return bbConverter
@@ -172,7 +177,7 @@ ${description}`;
       // #endregion Fetch wiki info UK
     }
 
-    GM_setValue('nintendo', nintendo);
+    GM_setValue(siteKey, nintendo);
     saveLink.on('click.complete', () => window.close());
     saveLink.val('Close and return to GGn').css({backgroundColor: 'green'});
   }
@@ -202,7 +207,8 @@ ${description}`;
     window.location.pathname === '/torrents.php' && /action=editgroup/.test(window.location.search);
 
   function validateSearchedValues() {
-    const nintendo = GM_getValue('nintendo', {});
+    patchPtpimgButtons(window, siteKey);
+    const nintendo = GM_getValue(siteKey, {});
     console.log(nintendo);
     if (nintendo.hasOwnProperty('tags'))
       tagReplacements.forEach(
@@ -252,7 +258,7 @@ ${description}`;
       $("[name='screens[]']").eq(index).val(screenshot); //Finally store the screenshot link in the right screen field.
     });
 
-    GM_deleteValue('nintendo');
+    GM_deleteValue(siteKey);
   }
 
   function add_search_button() {
@@ -276,10 +282,10 @@ ${description}`;
         }
         window.open(nintendoUrl, '_blank', 'popup=0,rel=noreferrer');
 
-        GM_setValue('nintendo', {});
+        GM_setValue(siteKey, {});
 
         $(window).focus(() => {
-          if (GM_getValue('nintendo', {}).hasOwnProperty('platform')) validateSearchedValues();
+          if (GM_getValue(siteKey, {}).hasOwnProperty('platform')) validateSearchedValues();
         });
       }),
     );
@@ -290,5 +296,13 @@ ${description}`;
     add_search_button();
   } else if (/.*\.nintendo\..*/.test(window.location.hostname)) {
     add_validate_button();
+  } else if (['postimages.org', 'postimg.cc'].includes(window.location.hostname)) {
+    executePostimages(window, siteKey);
   }
-})(unsafeWindow || window, jQuery || (unsafeWindow || window).jQuery, html2bbcode);
+})(
+  unsafeWindow || window,
+  jQuery || (unsafeWindow || window).jQuery,
+  html2bbcode,
+  patchPtpimgButtons,
+  executePostimages,
+);

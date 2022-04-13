@@ -1,7 +1,9 @@
 // ==UserScript==
 // @name         GazelleGames Giantbomb Uploady
 // @namespace    https://gazellegames.net/
-// @version      0.2.0
+// @version      0.2.1
+// @description  Uploady for giantbomb
+// @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
 // @match        https://gazellegames.net/torrents.php?action=editgroup*
 // @match        https://www.giantbomb.com/*
@@ -9,8 +11,6 @@
 // @match        https://postimages.org/web
 // @match        https://postimg.cc/gallery/*/*
 // @match        https://postimg.cc/*/*
-// @description  Uploady for giantbomb
-// @author       FinalDoom
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_deleteValue
@@ -103,6 +103,7 @@
   //
   // #region Helper functions
   //
+  const siteKey = 'giantbomb';
   const bbConverter = new HTML2BBCode();
   function html2bb(jqObj) {
     return bbConverter
@@ -151,7 +152,7 @@
   // #region Giantbomb functions
   //
   function fetchComplete(giantbomb) {
-    GM_setValue('giantbomb', giantbomb);
+    GM_setValue(siteKey, giantbomb);
     const ggnButton = $('#save_link');
     ggnButton.off('click.validate');
     ggnButton.on('click.complete', () => window.close());
@@ -163,7 +164,7 @@
     const imagesUrl = window.location.pathname + 'images/';
     const releasesUrl = window.location.pathname + 'releases/';
     const gameId = window.location.pathname.split('/')[2];
-    const giantbomb = GM_getValue('giantbomb', {});
+    const giantbomb = GM_getValue(siteKey, {});
 
     saveLink.val('Working...').css({backgroundColor: 'blue'});
 
@@ -190,7 +191,7 @@
           url: `/js/image-data.json?images=${galleryId}&start=0&count=16&object=${objectId}`,
           success: (data) => {
             giantbomb.screenshots = data.images.map(({original}) => original);
-            GM_setValue('giantbomb', giantbomb);
+            GM_setValue(siteKey, giantbomb);
             // #endregion Fetch images
 
             // #region Fetch release info
@@ -350,8 +351,8 @@
   const isWikiPage = () => window.location.pathname === $('.sub-nav li').eq(0).find('a').attr('href');
 
   function validateSearchedValues() {
-    patchPtpimgButtons(window);
-    const giantbomb = GM_getValue('giantbomb', {});
+    patchPtpimgButtons(window, siteKey);
+    const giantbomb = GM_getValue(siteKey, {});
     if (giantbomb.hasOwnProperty('tags'))
       tagReplacements.forEach(
         ({regex, replacement}) =>
@@ -400,7 +401,7 @@
       $("[name='screens[]']").eq(index).val(screenshot); //Finally store the screenshot link in the right screen field.
     });
 
-    GM_deleteValue('giantbomb');
+    GM_deleteValue(siteKey);
   }
 
   function addGazelleSearchButton() {
@@ -417,10 +418,10 @@
 
         window.open(`https://www.giantbomb.com/search/?header=1&i=game&q=${title}`, '_blank', 'popup=0,rel=noreferrer');
 
-        GM_setValue('giantbomb', {});
+        GM_setValue(siteKey, {});
 
         $(window).on('focus.giantbomb', () => {
-          if (GM_getValue('giantbomb', {}).hasOwnProperty('platform')) {
+          if (GM_getValue(siteKey, {}).hasOwnProperty('platform')) {
             validateSearchedValues();
             $(window).off('focus.giantbomb');
           }
@@ -437,7 +438,7 @@
   } else if (window.location.hostname === 'www.giantbomb.com' && isWikiPage()) {
     addGiantbombSaveButton();
   } else if (['postimages.org', 'postimg.cc'].includes(window.location.hostname)) {
-    executePostimages(window);
+    executePostimages(window, siteKey);
   }
 })(
   unsafeWindow || window,
