@@ -160,7 +160,7 @@ function executePostimages() {
 // #region Patch ptpimg upload buttons
 //
 function patchPtpimgButtons() {
-  console.log('Patching PTPImg buttons for PostImage fallback');
+  console.log('Patching PTPImg buttons for PostImage fallback', window, unsafeWindow);
   if (window.imageUpload.toString().indexOf('$.ajax(') === -1) {
     window.imageOnLoad = (response, element) => {
       if (/^FAiL$|^http:\/\/i.imgur.com\/?error.jpg$|^https:\/\/ptpimg.me\/.$|^Error: /.test(response)) {
