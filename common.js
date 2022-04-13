@@ -1,3 +1,5 @@
+const window = unsafeWindow;
+
 //
 // #region Postimage proxy
 //
