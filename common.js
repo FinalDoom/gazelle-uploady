@@ -1,5 +1,3 @@
-const window = unsafeWindow;
-
 //
 // #region Postimage proxy
 //
@@ -160,7 +158,7 @@ function executePostimages() {
 // #region Patch ptpimg upload buttons
 //
 function patchPtpimgButtons() {
-  console.log('Patching PTPImg buttons for PostImage fallback', window, unsafeWindow);
+  console.log('Patching PTPImg buttons for PostImage fallback');
   if (window.imageUpload.toString().indexOf('$.ajax(') === -1) {
     window.imageOnLoad = (response, element) => {
       if (/^FAiL$|^http:\/\/i.imgur.com\/?error.jpg$|^https:\/\/ptpimg.me\/.$|^Error: /.test(response)) {
@@ -184,3 +182,5 @@ function patchPtpimgButtons() {
 //
 // #endregion
 //
+
+window.uploadyCommon = {patchPtpimgButtons: patchPtpimgButtons, executePostimages: executePostimages};
