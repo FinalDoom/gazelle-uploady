@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Nintendo Uploady
 // @namespace    https://gazellegames.net/
-// @version      0.6.0
+// @version      0.6.1
 // @description  Uploady for Nintendo sites
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
@@ -29,6 +29,7 @@
   };
 
   const tagReplacements = [
+    {regex: / /g, replacement: '.'},
     {regex: /テキストアドベンチャー/, replacement: 'visual.novel'},
     {regex: /キャラクターボイス/, replacement: 'japanese.voiced'},
     {regex: /ストラテジー/, replacement: 'strategy'},
@@ -168,12 +169,16 @@ ${description}`;
         .text()
         .trim();
 
-      const videoInfo = _gItems.filter((o) => o.isVideo);
-      if (videoInfo && videoInfo[videoInfo.length - 1]) {
-        nintendo.trailer = videoInfo[videoInfo.length - 1].video_content_url;
-      }
       nintendo.cover = $('.packshot-hires img').attr('src').split('?')[0];
-      nintendo.screenshots = _gItems.filter((o) => !o.isVideo).map((i) => i.image_url.split('?')[0]);
+      if (_gItems) {
+        const videoInfo = _gItems.filter((o) => o.isVideo);
+        if (videoInfo && videoInfo[videoInfo.length - 1]) {
+          nintendo.trailer = videoInfo[videoInfo.length - 1].video_content_url;
+        }
+        nintendo.screenshots = _gItems.filter((o) => !o.isVideo).map((i) => i.image_url.split('?')[0]);
+      } else {
+        nintendo.screenshots = [];
+      }
       // #endregion Fetch wiki info UK
     }
 
