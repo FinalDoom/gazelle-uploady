@@ -1,4 +1,4 @@
-if (!GM_getValue || !GM_setValue || !GM_deleteValue || !jQuery || jQuery !== $ || !HTML2BBCode) {
+if (!GM_getValue || !GM_setValue || !GM_deleteValue || !jQuery || jQuery !== $ || !html2bbcode) {
   throw 'Uploady must require jQuery and HTML2BBCode';
   // Add these lines to your script metadata
 
@@ -78,7 +78,7 @@ const camelToTitleCase = (text) => {
   return result.charAt(0).toUpperCase() + result.slice(1);
 };
 
-const bbConverter = new HTML2BBCode();
+const bbConverter = new html2bbcode.HTML2BBCode();
 function html2bb(html) {
   return (
     bbConverter

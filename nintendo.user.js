@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Nintendo Uploady
 // @namespace    https://gazellegames.net/
-// @version      1.0.0
+// @version      1.0.1
 // @description  Uploady for Nintendo sites
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
@@ -158,4 +158,4 @@ function getGameInfoUK() {
     (title) => `https://www.nintendo.co.uk/Search/Search-299117.html?q=${title}`,
     getGameInfoUK,
   );
-})(unsafeWindow || window, jQuery || (unsafeWindow || window).jQuery, html2bbcode);
+})(unsafeWindow || window, jQuery || (unsafeWindow || window).jQuery);
