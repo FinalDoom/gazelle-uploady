@@ -688,10 +688,8 @@ class ExtraInfo {
       this.#element.remove();
       ExtraInfoPanel.infoRemoved();
     } else if (this.#element) {
-      this.#element
-        .find(`.extra-info__title:contains("${camelToTitleCase(key)}")`)
-        .parent()
-        .remove();
+      const dt = this.#element.find(`.extra-info__title:contains("${camelToTitleCase(key)}")`).parent();
+      dt.add(dt.next('dd')).remove();
       this.addToStorage();
     }
   }
