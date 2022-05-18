@@ -902,7 +902,6 @@ const {
      * @param {string} searchButtonName The name displayed for the uploady button
      * @param {Function<string, string>} urlBuilder Takes a game name and returns a search URL
      * @param {Function<GameInfo>} getGameInfo Builds a GameInfo object from a game page (main logic)
-     * @returns none
      */
     constructor(searchButtonName, urlBuilder, getGameInfo) {
       this.#key = crypto.randomUUID();
@@ -1062,11 +1061,13 @@ const {
     }
 
     /**
+     * Initialize a new uploady button that, when clicked, opens a search page to be parsed.
+     * Parsing logic is passed in via getGameInfo, and the resulting info will be used to populate the upload page.
      *
-     * @param {*} searchButtonName
-     * @param {*} urlBuilder
-     * @param {*} getGameInfo
-     * @returns
+     * @param {string} searchButtonName The name displayed for the uploady button
+     * @param {Function<string, string>} urlBuilder Takes a game name and returns a search URL
+     * @param {Function<GameInfo>} getGameInfo Builds a GameInfo object from a game page (main logic)
+     * @returns new Uploady button object
      */
     build(searchButtonName, urlBuilder, getGameInfo) {
       return new Uploady(searchButtonName, urlBuilder, getGameInfo);
@@ -1078,7 +1079,8 @@ const {
      * @param {jQuery} trElement row element for the game info section to hide/set toggleable
      */
     #makeInfoToggleable(trElement) {
-      const [label, info] = trElement.find('td').toArray();
+      const label = trElement.find('td').eq(0);
+      const info = trElement.find('td').eq(1);
       label.addClass('info-label--toggleable').click(() => info.toggle());
       info.hide();
     }
@@ -1093,12 +1095,14 @@ const {
           $('head').append(CSS_GAZELLE);
 
           // Just change for new uploads
-          if ($('#empty_group').length) {
+          if (Gazelle.isNewGroup()) {
             $('#empty_group').prop('checked', true).change();
 
-            this.#makeInfoToggleable($('#dnu_header').parent());
             this.#makeInfoToggleable($('#reviews_table').parent().parent());
             this.#makeInfoToggleable($('#steamid').parent().parent());
+          }
+          if (Gazelle.isNewGroup() || Gazelle.isUploadRelease()) {
+            $('#dnu_header').parent().hide();
           }
 
           ExtraInfo.showExtraInfoForIds(Gazelle.groupIds());
@@ -1203,7 +1207,7 @@ const {
             .toArray(),
         ]) ||
         (Gazelle.isEditGroup() && [new URLSearchParams(window.location.search).get('groupid')]) ||
-        (Gazelle.isEditRelease() && [$('input[name="groupid"]').val()])
+        ((Gazelle.isEditRelease() || Gazelle.isUploadRelease()) && [$('input[name="groupid"]').val()])
       );
     }
   }
