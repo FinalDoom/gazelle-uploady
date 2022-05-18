@@ -47,7 +47,7 @@ const bbConverter = new html2bbcode.HTML2BBCode();
  * @returns bbcode representation of the argument
  */
 function html2bb(html) {
-  const cleanHtml = $(html).clone();
+  const cleanHtml = $('div').append(html);
   // Remove all attributes as they cause problems for HTML2BBCode sometimes
   cleanHtml.find('*').replaceWith(function () {
     return $('<' + this.nodeName + '>').append($(this).contents());
@@ -82,7 +82,7 @@ function html2bb(html) {
       .replace(/^\n+/, '')
   );
 }
-const VERSION = '1.0.1';
+const VERSION = '1.0.2';
 const {
   ExtraInfoCleanup,
   GameInfo,
