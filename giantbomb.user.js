@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Giantbomb Uploady
 // @namespace    https://gazellegames.net/
-// @version      1.0.5
+// @version      1.0.6
 // @description  Uploady for giantbomb
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
@@ -17,24 +17,6 @@
 // ==/UserScript==
 
 'use strict';
-
-//
-// #region Helper functions
-//
-$.fn.extend({
-  absoluteLinks: function () {
-    this.each(function () {
-      $(this)
-        .find('a')
-        .attr('href', (_, href) => new URL(href, window.location).href);
-      return this;
-    });
-    return this;
-  },
-});
-//
-// #endregion Helper functions
-//
 
 //
 // #region Giantbomb functions
@@ -197,7 +179,8 @@ async function getGameInfo(resolve) {
 
 (function () {
   ('use strict');
-  Uploady.init(
+
+  UploadyFactory.build(
     'Search Giantbomb',
     (title) => `https://www.giantbomb.com/search/?header=1&i=game&q=${title}`,
     getGameInfo,
