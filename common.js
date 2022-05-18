@@ -356,16 +356,16 @@ const RATINGS = new Rating();
 RATINGS.addMatchers([
   [Rating.N_A, /N\/A/],
   // Descending order because of regex overlap / consistency
-  [Rating.PEGI18, /CERO Z/],
-  [Rating.PEGI16, /CERO [CD]/],
-  [Rating.PEGI12, /CERO B/],
-  [Rating.PEGI3, /CERO A.*/],
-  [Rating.PEGI18, /ESRB AO/],
-  [Rating.PEGI16, /ESRB M/],
-  [Rating.PEGI12, /ESRB T/],
-  [Rating.PEGI12, /ESRB E10\+/],
-  [Rating.PEGI7, /ESRB E(!10|C)/],
-  [Rating.PEGI3, /ESRB EC/],
+  [Rating.PEGI18, /CERO.* Z/],
+  [Rating.PEGI16, /CERO.* [CD]/],
+  [Rating.PEGI12, /CERO.* B/],
+  [Rating.PEGI3, /CERO.* A.*/],
+  [Rating.PEGI18, /ESRB.* AO/],
+  [Rating.PEGI16, /ESRB.* M/],
+  [Rating.PEGI12, /ESRB.* T/],
+  [Rating.PEGI12, /ESRB.* E10\+/],
+  [Rating.PEGI7, /ESRB.* E(!10|C)/],
+  [Rating.PEGI3, /ESRB.* EC/],
   // TODO more US ones
   [Rating.PEGI12, /Everyone 10\+/],
   [Rating.PEGI3, /Everyone 3\+/],
@@ -373,16 +373,16 @@ RATINGS.addMatchers([
   [Rating.PEGI16, /IARC.* 16.*/],
   [Rating.PEGI12, /IARC.* 12.*/],
   [Rating.PEGI7, /IARC.* 7.*/],
-  [Rating.PEGI18, /OFLC: MA\s*15\+/],
-  [Rating.PEGI16, /OFLC: M(?:15\+)?/],
-  [Rating.PEGI12, /OFLC: G8\+/],
-  [Rating.PEGI7, /OFLC: PG/], // Needs verification
-  [Rating.PEGI3, /OFLC: G(?:eneral)?/],
-  [Rating.PEGI18, /PEGI 18/],
-  [Rating.PEGI16, /PEGI 16/],
-  [Rating.PEGI12, /PEGI 12/],
-  [Rating.PEGI7, /PEGI 7/],
-  [Rating.PEGI3, /PEGI 3/],
+  [Rating.PEGI18, /OFLC.* MA\s*15\+/],
+  [Rating.PEGI16, /OFLC.* M(?:15\+)?/],
+  [Rating.PEGI12, /OFLC.* G8\+/],
+  [Rating.PEGI7, /OFLC.* PG/], // Needs verification
+  [Rating.PEGI3, /OFLC.* G(?:eneral)?/],
+  [Rating.PEGI18, /PEGI.* 18/],
+  [Rating.PEGI16, /PEGI.* 16/],
+  [Rating.PEGI12, /PEGI.* 12/],
+  [Rating.PEGI7, /PEGI.* 7/],
+  [Rating.PEGI3, /PEGI.* 3/],
 ]);
 //
 // #endregion Rating handling
