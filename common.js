@@ -70,6 +70,9 @@ const CSS_EXTERNAL = `<style type="text/css">
 .uploady-button--done {
   background-color: green;
 }
+.uploady-button--error {
+  background-color: red;
+}
 </style>`;
 
 /** Helper that does what it says. Converts camelCase to Title Case */
@@ -214,7 +217,7 @@ const BASE_TAGS = [
     'science.fiction', 'shooter', 'simulation', 'sports', 'strategy', 'survival', 'tactics',
     'turn.based.strategy', 'visual.novel',
     // Other tags
-    'japanese.voiced',
+    'board.game', 'japanese.voiced', 'minigames', 'music', 'rhythm', 'trivia',
   ];
 // prettier-ignore
 const SPORTS = [
@@ -254,8 +257,13 @@ TAGS.addMatchers([
   [Tag.VISUAL_NOVEL, /テキストアドベンチャー/],
 
   // Other tag matches
-  [Tag.ROLE_PLAYING_GAME, /rpg/],
+  [Tag.BEAT_EM_UP, /brawler/],
+  [Tag.PUZZLE, /block-breaking/],
+  [Tag.MINIGAMES, /minigame.collection/],
+  [Tag.ROLE_PLAYING_GAME, /role-playing|rpg/],
   [Tag.SPORTS, SPORTS.join('|')],
+  [Tag.TRACK_AND_FIELD, /track & field/],
+  [Tag.TWIN_STICK_SHOOTER, /Dual-Joystick Shooter/],
 ]);
 //
 // #endregion Tag handling
@@ -305,11 +313,27 @@ PLATFORMS.addMatchers([
 
   // Other platform mathes
   [Platform.NES, /Nintendo Entertainment System/],
-  [Platform.NINTENDO_64, /Nintendo 64DD/],
-  [Platform.Nintendo_GAMECUBE, /GameCube/],
+  [Platform.NINTENDO_GAMECUBE, /GameCube/],
   [Platform.SUPER_NES, /Super Nintendo Entertainment System/],
-  [Platform.WII, /Wii Shop/],
-  [Platform.SWITCH, /Nintendo Switch/],
+  [Platform.IOS, /iPhone|iPad|iPod/],
+  [Platform.WINDOWS, /PC/],
+  [Platform.NES, /Nintendo Entertainment System/],
+  [Platform.PLAYSTATION_1, /PlayStation(?! 1| 2| 3| P| N| V)/],
+  [Platform.PLAYSTATION_3, /PS3/],
+  [Platform.PLAYSTATION_PORTABLE, /PSP/],
+  [Platform.PLAYSTATION_VITA, /Vita/],
+  [Platform.MEGA_DRIVE, /Genesis/],
+  [Platform.ATARI_JAGUAR, /Jaguar CD/],
+  [Platform.BANDAI_WONDERSWAN, /Wonderswan/],
+  [Platform.COMMODORE_AMIGA, /Amiga/],
+  [Platform.COMMODORE_PLUS_4, /Commodore 16/],
+  [Platform.MAGNAVOX_PHILLIPS_ODYSSEY, /Odyssey 2/],
+  [Platform.MATTEL_INTELLIVISION, /Intellivision/],
+  [Platform.NEC_PC_FX, /NEC PC-6001|NEC PC-8801|NEC PC-9801/],
+  [Platform.NEC_TURBOGRAFX_16, /TurboGrafx-16/],
+  [Platform.NOKIA_N_GAGE, /N-Gage/],
+  [Platform.SNK_NEO_GEO, /Neo Geo(?! Pocket)/],
+  [Platform.TANGERINE_ORIC, /Oric/],
 ]);
 //
 // #endregion Platform handling
@@ -325,28 +349,35 @@ Object.defineProperties(Rating, {
   PEGI12: {value: 5},
   PEGI16: {value: 7},
   PEGI18: {value: 9},
+  N_A: {value: 13},
 });
 const RATINGS = new Rating();
 
 RATINGS.addMatchers([
+  [Rating.N_A, /N\/A/],
   // Descending order because of regex overlap / consistency
-  [Rating.PEGI18, /ESRB AO/],
-  [Rating.PEGI16, /ESRB M/],
-  [Rating.PEGI12, /ESRB T/],
-  [Rating.PEGI12, /ESRB E10\+/],
-  [Rating.PEGI7, /ESRB E/],
-  [Rating.PEGI3, /ESRB EC/],
-  // TODO more US ones
-  [Rating.PEGI12, /Everyone 10\+/],
-  [Rating.PEGI3, /Everyone 3\+/],
-  [Rating.PEGI7, /Everyone/],
   [Rating.PEGI18, /CERO Z/],
   [Rating.PEGI16, /CERO [CD]/],
   [Rating.PEGI12, /CERO B/],
   [Rating.PEGI3, /CERO A.*/],
+  [Rating.PEGI18, /ESRB AO/],
+  [Rating.PEGI16, /ESRB M/],
+  [Rating.PEGI12, /ESRB T/],
+  [Rating.PEGI12, /ESRB E10\+/],
+  [Rating.PEGI7, /ESRB E(!10|C)/],
+  [Rating.PEGI3, /ESRB EC/],
+  // TODO more US ones
+  [Rating.PEGI12, /Everyone 10\+/],
+  [Rating.PEGI3, /Everyone 3\+/],
+  [Rating.PEGI7, /Everyone(?! 3| 10)/],
   [Rating.PEGI16, /IARC.* 16.*/],
   [Rating.PEGI12, /IARC.* 12.*/],
   [Rating.PEGI7, /IARC.* 7.*/],
+  [Rating.PEGI18, /OFLC: MA\s*15\+/],
+  [Rating.PEGI16, /OFLC: M(?:15\+)?/],
+  [Rating.PEGI12, /OFLC: G8\+/],
+  [Rating.PEGI7, /OFLC: PG/], // Needs verification
+  [Rating.PEGI3, /OFLC: G(?:eneral)?/],
   [Rating.PEGI18, /PEGI 18/],
   [Rating.PEGI16, /PEGI 16/],
   [Rating.PEGI12, /PEGI 12/],
@@ -369,6 +400,7 @@ class GameInfo {
   #year;
   #trailer;
   #cover;
+  #giantbomb;
   #tags = new Set();
   #aliases = new Set();
   #screenshots = new Set();
@@ -470,11 +502,18 @@ class GameInfo {
     }
   }
 
+  get giantbomb() {
+    return this.#giantbomb;
+  }
+  set giantbomb(giantbombUrl) {
+    if (!!giantbombUrl) this.#giantbomb = giantbombUrl;
+  }
+
   get extraInfo() {
     return {...this.#extraInfo};
   }
   set extraInfo(info) {
-    this.#extraInfo = {...this.#extraInfo, ...info};
+    this.#extraInfo = {...this.#extraInfo, ...Object.fromEntries(Object.entries(info).filter(([_, value]) => value))};
     if ('languages' in info) {
       this.#extraInfo.languages = new Set(this.#extraInfo.languages);
     }
@@ -853,15 +892,22 @@ class Uploady {
         window.sessionStorage.uploadyKey = uploadyKey;
       }
       $('body').prepend(
-        $('<input type="button" class="uploady-button" value="Save link for GGn"/>').on('click.validate', function () {
-          $(this).val('Working...').addClass('uploady-button--working');
-          const info = getGameInfo();
-          GM_setValue(window.sessionStorage.uploadyKey, JSON.stringify(info));
-          $(this)
-            .on('click.complete', () => window.close())
-            .val('Close and return to GGn')
-            .addClass('uploady-button--done');
-        }),
+        $('<input type="button" class="uploady-button" value="Save link for GGn"/>').on(
+          'click.validate',
+          async function () {
+            $(this).val('Working...').addClass('uploady-button--working');
+            try {
+              const info = await getGameInfo();
+              GM_setValue(window.sessionStorage.uploadyKey, JSON.stringify(info));
+              $(this)
+                .on('click.complete', () => window.close())
+                .val('Close and return to GGn')
+                .addClass('uploady-button--done');
+            } catch (error) {
+              $(this).val(error).addClass('uploady-button--error');
+            }
+          },
+        ),
       );
     }
   }
@@ -901,6 +947,8 @@ class Uploady {
 
       if (this.#info.year) $('#year').val(this.#info.year);
       else $('#year').addClass('error');
+
+      if (this.#info.giantbomb) $('#giantbomburi').val(this.#info.giantbomb);
 
       if (this.#info.cover) $('#image').val(this.#info.cover);
       else $('#image').addClass('error');
