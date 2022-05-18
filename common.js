@@ -897,7 +897,7 @@ class Uploady {
           async function () {
             $(this).val('Working...').addClass('uploady-button--working');
             try {
-              const info = await getGameInfo();
+              const info = await new Promise((resolve) => getGameInfo(resolve));
               GM_setValue(window.sessionStorage.uploadyKey, JSON.stringify(info));
               $(this)
                 .on('click.complete', () => window.close())

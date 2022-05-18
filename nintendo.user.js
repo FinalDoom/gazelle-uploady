@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Nintendo Uploady
 // @namespace    https://gazellegames.net/
-// @version      1.0.1
+// @version      1.0.2
 // @description  Uploady for Nintendo sites
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
@@ -151,11 +151,19 @@ function getGameInfoUK() {
 (function () {
   ('use strict');
 
-  Uploady.init('(US)', (title) => `https://www.nintendo.com/search/?q=${title}&p=1&cat=gme&sort=df`, getGameInfoUS);
-  Uploady.init('(JP)', (title) => `https://store-jp.nintendo.com/search/?q=${title}`, getGameInfoJP);
+  Uploady.init(
+    '(US)',
+    (title) => `https://www.nintendo.com/search/?q=${title}&p=1&cat=gme&sort=df`,
+    (resolve) => resolve(getGameInfoUS()),
+  );
+  Uploady.init(
+    '(JP)',
+    (title) => `https://store-jp.nintendo.com/search/?q=${title}`,
+    (resolve) => resolve(getGameInfoJP()),
+  );
   Uploady.init(
     'Search Nintendo (UK)',
     (title) => `https://www.nintendo.co.uk/Search/Search-299117.html?q=${title}`,
-    getGameInfoUK,
+    (resolve) => resolve(getGameInfoUK()),
   );
-})(unsafeWindow || window, jQuery || (unsafeWindow || window).jQuery);
+})();

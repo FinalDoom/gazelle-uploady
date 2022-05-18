@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Giantbomb Uploady
 // @namespace    https://gazellegames.net/
-// @version      1.0.0
+// @version      1.0.1
 // @description  Uploady for giantbomb
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
@@ -39,7 +39,7 @@ $.fn.extend({
 //
 // #region Giantbomb functions
 //
-async function getGameInfo() {
+async function getGameInfo(resolve) {
   const giantbomb = new GameInfo();
   const gameId = window.location.pathname.split('/')[2];
 
@@ -68,34 +68,34 @@ async function getGameInfo() {
   giantbomb.cover = $('.wiki-boxart img').attr('src');
   const galleryUrl = await $.ajax({
     url: window.location.pathname + 'images/',
-    success: async (data) => {
+  })
+    .then((data) => {
       if (data.html) data = data.html;
       const galleryMarker = $(data).find('#galleryMarker');
       const galleryId = galleryMarker.attr('data-gallery-id');
       const objectId = galleryMarker.attr('data-object-id');
       return `/js/image-data.json?images=${galleryId}&start=0&count=16&object=${objectId}`;
-    },
-    error: (error) => {
+    })
+    .catch((error) => {
       console.error(error);
       throw 'Encountered an error getting images page. Check console';
-    },
-  });
+    });
   await $.ajax({
     url: galleryUrl,
-    success: async (data) => {
-      data.images.forEach(({original}) => giantbomb.addScreenshot(original));
-    },
-    error: (error) => {
+  })
+    .then((data) => data.images.forEach(({original}) => giantbomb.addScreenshot(original)))
+    .catch((error) => {
       console.error(error);
       throw 'Encountered an error getting images url json. Check console';
-    },
-  });
+    });
   // #endregion Fetch images
 
+  console.log('fetching', window.location.pathname + 'releases/');
   // #region Fetch release info
   await $.ajax({
     url: window.location.pathname + 'releases/',
-    success: (data) => {
+  })
+    .then((data) => {
       // Here pull the TOC and display it for selection
       const TOC = $(data).find('.aside-toc').parent();
       if (!TOC.length) {
@@ -107,6 +107,7 @@ async function getGameInfo() {
             event.preventDefault();
             giantbomb.platform = $(this).text();
             $(this).css({border: ''});
+            resolve(giantbomb);
             return;
           });
         window.alert('Please choose a platform from the highlighed options');
@@ -168,24 +169,24 @@ async function getGameInfo() {
           multiPlayerFeatures: releaseBlock.find('[data-field="multiPlayerFeatures"]').text().trim(),
           notes: releaseBlock.find('[data-field="description"]').text().trim(),
         };
+        resolve(giantbomb);
       });
-    },
-    error: (error) => {
+    })
+    .catch((error) => {
       console.error(error);
       throw 'Encountered an error getting releases. Check console';
-    },
-  });
+    });
   // #endregion Fetch release info
 }
 //
 // #endregion Giantbomb functions
 //
 
-(function (window, $) {
+(function () {
   ('use strict');
   Uploady.init(
     'Search Giantbomb',
     (title) => `https://www.giantbomb.com/search/?header=1&i=game&q=${title}`,
     getGameInfo,
   );
-})(unsafeWindow || window, jQuery || (unsafeWindow || window).jQuery);
+})();
