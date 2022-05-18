@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Giantbomb Uploady
 // @namespace    https://gazellegames.net/
-// @version      1.0.4
+// @version      1.0.5
 // @description  Uploady for giantbomb
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
@@ -90,7 +90,6 @@ async function getGameInfo(resolve) {
     });
   // #endregion Fetch images
 
-  console.log('fetching', window.location.pathname + 'releases/');
   // #region Fetch release info
   await $.ajax({
     url: window.location.pathname + 'releases/',
@@ -152,7 +151,7 @@ async function getGameInfo(resolve) {
           giantbomb.title = releaseTitle;
         }
         giantbomb.rating = releaseBlock.find('[data-field="rating"]').text().trim().replace(/^$/, 'N/A');
-        giantbomb.platform = releaseBlock.find('[data-field="platform"]').text().trim();
+        giantbomb.platform = releaseBlock.find('[data-field="platform"]').text();
         giantbomb.year = releaseBlock.find('[data-field="releaseDate"]').text();
 
         // Grab extra info
@@ -164,17 +163,15 @@ async function getGameInfo(resolve) {
           // TODO developers and publishers could have multiple entries, but I don't have an example
           developers: releaseBlock
             .find('[data-field="developers"]')
-            .absoluteLinks()
-            .each(function () {
-              return $(this).attr('href');
+            .map(function () {
+              return $(this).text().trim();
             })
             .toArray()
             .join(', '),
           publishers: releaseBlock
             .find('[data-field="publishers"]')
-            .absoluteLinks()
-            .each(function () {
-              return $(this).attr('href');
+            .map(function () {
+              return $(this).text().trim();
             })
             .toArray()
             .join(', '),
@@ -184,6 +181,7 @@ async function getGameInfo(resolve) {
           ...(multiPlayerFeatures && multiPlayerFeatures !== 'N/A' ? {multiPlayerFeatures: multiPlayerFeatures} : {}),
           ...(notes && notes !== 'N/A' ? {notes: notes} : {}),
         };
+
         resolve(giantbomb);
       });
     })

@@ -559,6 +559,9 @@ class GameInfo {
         case 'tags':
           info.#tags = new Set(value);
           break;
+        case 'description':
+          info.#description = value;
+          break;
         case 'rating':
           info.#rating = value;
           break;
