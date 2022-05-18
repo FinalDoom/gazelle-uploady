@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Nintendo Uploady
 // @namespace    https://gazellegames.net/
-// @version      1.0.2
+// @version      1.0.3
 // @description  Uploady for Nintendo sites
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
@@ -130,12 +130,13 @@ function getGameInfoUK() {
   nintendo.rating = $('#gameDetails .game_info_title:contains("Age rating")').next().find('.age-rating__icon').text();
 
   nintendo.cover = $('.packshot-hires img').attr('src').split('?')[0];
-  if (window._gItems) {
-    const videoInfo = window._gItems.filter((o) => o.isVideo);
+  if (unsafeWindow._gItems) {
+    const images = unsafeWindow._gItems;
+    const videoInfo = images.filter((o) => o.isVideo);
     if (videoInfo && videoInfo[videoInfo.length - 1]) {
       nintendo.trailer = videoInfo[videoInfo.length - 1].video_content_url;
     }
-    nintendo.addScreenshot(...window._gItems.filter((o) => !o.isVideo).map((i) => i.image_url.split('?')[0]));
+    nintendo.addScreenshot(...images.filter((o) => !o.isVideo).map((i) => i.image_url.split('?')[0]));
   } else {
     nintendo.screenshots = [];
   }
