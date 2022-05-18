@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Giantbomb Uploady
 // @namespace    https://gazellegames.net/
-// @version      1.0.3
+// @version      1.0.4
 // @description  Uploady for giantbomb
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
@@ -166,7 +166,7 @@ async function getGameInfo(resolve) {
             .find('[data-field="developers"]')
             .absoluteLinks()
             .each(function () {
-              $(this).attr('href');
+              return $(this).attr('href');
             })
             .toArray()
             .join(', '),
@@ -174,7 +174,7 @@ async function getGameInfo(resolve) {
             .find('[data-field="publishers"]')
             .absoluteLinks()
             .each(function () {
-              $(this).attr('href');
+              return $(this).attr('href');
             })
             .toArray()
             .join(', '),
