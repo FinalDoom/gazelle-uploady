@@ -691,7 +691,6 @@ class ExtraInfo {
       this.#element
         .find(`.extra-info__title:contains("${camelToTitleCase(key)}")`)
         .parent()
-        .parent()
         .remove();
       this.addToStorage();
     }
