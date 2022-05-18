@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Giantbomb Uploady
 // @namespace    https://gazellegames.net/
-// @version      1.0.1
+// @version      1.0.2
 // @description  Uploady for giantbomb
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
@@ -135,10 +135,6 @@ async function getGameInfo(resolve) {
       TOC.find('a').click(function (event) {
         event.preventDefault();
         if ($(this).attr('href').startsWith('#toc-release-platform')) return;
-        // UI response stuff
-        TOC.prepend(saveLink.css({width: '', height: '', left: '', top: '', position: ''}).remove())
-          .find('h3')
-          .css({color: ''});
 
         const releaseId = $(this)
           .attr('href')
@@ -157,7 +153,7 @@ async function getGameInfo(resolve) {
         }
         giantbomb.rating = releaseBlock.find('[data-field="rating"]').text().trim().replace(/^$/, 'N/A');
         giantbomb.platform = releaseBlock.find('[data-field="platform"]').text().trim();
-        giantbomb.year = releaseBlock.find('[data-field="releaseDate"]').getYear();
+        giantbomb.year = releaseBlock.find('[data-field="releaseDate"]').text();
 
         // Prepend extra information to description
         giantbomb.extraInfo = {

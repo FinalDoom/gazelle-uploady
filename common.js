@@ -523,6 +523,12 @@ class GameInfo {
   }
 
   toJSON() {
+    const extraInfo = this.extraInfo;
+    if ('languages' in extraInfo) {
+      extraInfo.languages = Array.from(this.extraInfo.languages).sort((a, b) =>
+        a === Language.ENGLISH ? -1 : b === Language.ENGLISH ? 1 : 0,
+      );
+    }
     return {
       platform: this.platform,
       rating: this.rating,
@@ -534,12 +540,7 @@ class GameInfo {
       tags: this.tags,
       aliases: this.aliases,
       screenshots: this.screenshots,
-      extraInfo: {
-        ...this.extraInfo,
-        languages: Array.from(this.extraInfo.languages).sort((a, b) =>
-          a === Language.ENGLISH ? -1 : b === Language.ENGLISH ? 1 : 0,
-        ),
-      },
+      extraInfo: extraInfo,
     };
   }
 
