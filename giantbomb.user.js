@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Giantbomb Uploady
 // @namespace    https://gazellegames.net/
-// @version      1.0.6
+// @version      1.0.7
 // @description  Uploady for giantbomb
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
@@ -180,7 +180,7 @@ async function getGameInfo(resolve) {
 (function () {
   ('use strict');
 
-  UploadyFactory.build(
+  new UploadyFactory().build(
     'Search Giantbomb',
     (title) => `https://www.giantbomb.com/search/?header=1&i=game&q=${title}`,
     getGameInfo,
