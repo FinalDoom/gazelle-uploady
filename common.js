@@ -904,6 +904,7 @@ class Uploady {
                 .val('Close and return to GGn')
                 .addClass('uploady-button--done');
             } catch (error) {
+              console.log('Uploady error:', error);
               $(this).val(error).addClass('uploady-button--error');
             }
           },
