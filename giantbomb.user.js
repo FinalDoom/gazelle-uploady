@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Giantbomb Uploady
 // @namespace    https://gazellegames.net/
-// @version      1.0.2
+// @version      1.0.3
 // @description  Uploady for giantbomb
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
@@ -155,15 +155,34 @@ async function getGameInfo(resolve) {
         giantbomb.platform = releaseBlock.find('[data-field="platform"]').text().trim();
         giantbomb.year = releaseBlock.find('[data-field="releaseDate"]').text();
 
-        // Prepend extra information to description
+        // Grab extra info
+        const singlePlayerFeatures = releaseBlock.find('[data-field="singlePlayerFeatures"]').text().trim();
+        const multiPlayerFeatures = releaseBlock.find('[data-field="multiPlayerFeatures"]').text().trim();
+        const notes = releaseBlock.find('[data-field="description"]').text().trim();
         giantbomb.extraInfo = {
           region: releaseBlock.find('[data-field="region"]').text().trim(),
           // TODO developers and publishers could have multiple entries, but I don't have an example
-          developers: releaseBlock.find('[data-field="developers"]').absoluteLinks().html().trim(),
-          publishers: releaseBlock.find('[data-field="publishers"]').absoluteLinks().html().trim(),
-          singlePlayerFeatures: releaseBlock.find('[data-field="singlePlayerFeatures"]').text().trim(),
-          multiPlayerFeatures: releaseBlock.find('[data-field="multiPlayerFeatures"]').text().trim(),
-          notes: releaseBlock.find('[data-field="description"]').text().trim(),
+          developers: releaseBlock
+            .find('[data-field="developers"]')
+            .absoluteLinks()
+            .each(function () {
+              $(this).attr('href');
+            })
+            .toArray()
+            .join(', '),
+          publishers: releaseBlock
+            .find('[data-field="publishers"]')
+            .absoluteLinks()
+            .each(function () {
+              $(this).attr('href');
+            })
+            .toArray()
+            .join(', '),
+          ...(singlePlayerFeatures && singlePlayerFeatures !== 'N/A'
+            ? {singlePlayerFeatures: singlePlayerFeatures}
+            : {}),
+          ...(multiPlayerFeatures && multiPlayerFeatures !== 'N/A' ? {multiPlayerFeatures: multiPlayerFeatures} : {}),
+          ...(notes && notes !== 'N/A' ? {notes: notes} : {}),
         };
         resolve(giantbomb);
       });

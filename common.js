@@ -803,6 +803,7 @@ class ExtraInfoPanel {
  */
 class Uploady {
   #info;
+  #extraInfo;
   #key;
 
   /**
@@ -980,13 +981,17 @@ class Uploady {
    */
   #showExtraInfo() {
     if (this.#info.hasExtraInfo()) {
-      const extraInfo = new ExtraInfo({
+      if (this.#extraInfo) {
+        this.#extraInfo.removeFromStorage();
+        this.#extraInfo.element.remove();
+      }
+      this.#extraInfo = new ExtraInfo({
         title: this.#info.title,
         platform: this.#info.platform,
         ...this.#info.extraInfo,
       });
-      extraInfo.addToStorage();
-      ExtraInfoPanel.showExtraInfo(extraInfo);
+      this.#extraInfo.addToStorage();
+      ExtraInfoPanel.showExtraInfo(this.#extraInfo);
 
       $('#title').on('change.extrainfo', function () {
         extraInfo.title = $(this).val();
