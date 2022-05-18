@@ -821,7 +821,8 @@ class Uploady {
     Uploady.initOnce();
     if (window.location.hostname === 'gazellegames.net') {
       const uploady = new Uploady(crypto.randomUUID());
-      $('input[name="title"], input[name="name"]').after(
+      const titleFieldSelector = 'input[name="title"], input[name="name"]';
+      $(titleFieldSelector).after(
         $('<input type="button" />')
           .val(searchButtonName)
           .click(() => {
