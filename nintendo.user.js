@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Nintendo Uploady
 // @namespace    https://gazellegames.net/
-// @version      1.0.5
+// @version      1.1.0
 // @description  Uploady for Nintendo sites
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
@@ -21,6 +21,8 @@
 // ==/UserScript==
 
 'use strict';
+
+const JP_YOUTUBE_THUMB_RE = /img.youtube.com\/vi\/(mygwxDnxnYQ)\//;
 
 function getGameInfoJP() {
   const nintendo = new GameInfo();
@@ -48,11 +50,27 @@ ${descriptionHtml}
   nintendo.rating = $('.productDetail--CERO__rating img, .productDetail--IARC__rating img').first().attr('alt');
 
   nintendo.cover = $('ul.slick-dots li:first-of-type() img').attr('src').split('?')[0];
-  nintendo.addScreenshot(
-    ...$('.slick-track li.slick-slide:not(.slick-cloned) img')
-      .map((_, elem) => $(elem).attr('src').split('?')[0])
-      .toArray(),
-  );
+  $('.slick-track li.slick-slide:not(.slick-cloned) img')
+    .map((_, elem) => $(elem).attr('src').split('?')[0])
+    .toArray()
+    .forEach((url) => {
+      if (JP_YOUTUBE_THUMB_RE.test(url)) {
+        // This actually references a youtube video. Use it as the trailer
+        const trailer = 'https://youtu.be/' + url.match(JP_YOUTUBE_THUMB_RE)[1];
+        if (nintendo.trailer) {
+          // Put it in extraInfo instead (sometimes there are multiple videos)
+          if ('videos' in nintendo.extraInfo) {
+            nintendo.extraInfo = {videos: nintendo.extraInfo + ', ' + trailer};
+          } else {
+            nintendo.extraInfo = {videos: trailer};
+          }
+        } else {
+          nintendo.trailer = trailer;
+        }
+      } else if (url !== nintendo.cover) {
+        nintendo.addScreenshot(url);
+      }
+    });
 
   nintendo.extraInfo = {
     publisher: publisher,
