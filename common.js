@@ -377,8 +377,10 @@ const {
     [Platform.IOS, /iPhone|iPad|iPod/],
     [Platform.WINDOWS, /PC/],
     [Platform.NES, /Nintendo Entertainment System/],
-    [Platform.PLAYSTATION_1, /PlayStation(?! 1| 2| 3| P| N| V)/],
+    [Platform.PLAYSTATION_1, /PlayStation(?! 1| 2| 3| 4| P| N| V)/],
+    [Platform.PLAYSTATION_2, /PS2/],
     [Platform.PLAYSTATION_3, /PS3/],
+    [Platform.PLAYSTATION_4, /PS4/],
     [Platform.PLAYSTATION_PORTABLE, /PSP/],
     [Platform.PLAYSTATION_VITA, /Vita/],
     [Platform.MEGA_DRIVE, /Genesis/],
@@ -970,7 +972,7 @@ const {
      * @param {bool} allowEmpty true to skip the error check and not mark field error when no value
      */
     static fillField(selector, value, required = true) {
-      if (value) $(selector).val(value).blur();
+      if (value) $(selector).val(value).focus().blur();
       else if (required) $(selector).addClass('error');
     }
 
