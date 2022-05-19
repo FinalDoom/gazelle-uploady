@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Nintendo Uploady
 // @namespace    https://gazellegames.net/
-// @version      1.0.4
+// @version      1.0.5
 // @description  Uploady for Nintendo sites
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
@@ -29,7 +29,9 @@ function getGameInfoJP() {
   nintendo.title = $('.productDetail--headline__title').text().trim();
   const publisher = $('th:contains("メーカー")').next().text().trim();
   nintendo.addLanguage(...$('th:contains("対応言語")').next().text().trim().split(', '));
-  const descriptionHtml = $('.productDetail--catchphrase__title, .productDetail--catchphrase__longDescription').html();
+  const descriptionHtml = $('<div>')
+    .append($('.productDetail--catchphrase__title, .productDetail--catchphrase__longDescription').clone())
+    .html();
   nintendo.description = `${descriptionHtml}
 
 [spoiler=Original Japanese description]
