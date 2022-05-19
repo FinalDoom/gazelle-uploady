@@ -82,7 +82,7 @@ function html2bb(html) {
       .replace(/^\n+/, '')
   );
 }
-const VERSION = '1.0.3';
+const VERSION = '1.0.4';
 const {
   ExtraInfoCleanup,
   GameInfo,
@@ -432,6 +432,7 @@ const {
     [Rating.PEGI16, /IARC.* 16.*/],
     [Rating.PEGI12, /IARC.* 12.*/],
     [Rating.PEGI7, /IARC.* 7.*/],
+    [Rating.PEGI3, /IARC.* 3.*/],
     [Rating.PEGI18, /OFLC.* MA\s*15\+/],
     [Rating.PEGI16, /OFLC.* M(?:15\+)?/],
     [Rating.PEGI12, /OFLC.* G8\+/],
