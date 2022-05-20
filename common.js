@@ -82,7 +82,7 @@ function html2bb(html) {
       .replace(/^\n+/, '')
   );
 }
-const VERSION = '1.0.4';
+const VERSION = '1.0.5';
 const {
   ExtraInfoCleanup,
   GameInfo,
@@ -1104,14 +1104,14 @@ const {
           // Just change for new uploads
           if (Gazelle.isNewGroup()) {
             $('#empty_group').prop('checked', true).change();
-
-            this.#makeInfoToggleable($('#reviews_table').parent().parent());
             this.#makeInfoToggleable($('#steamid').parent().parent());
           }
           if (Gazelle.isNewGroup() || Gazelle.isUploadRelease()) {
             $('#dnu_header').parent().hide();
           }
 
+          console.log('resgsgasdgfasfasd');
+          this.#makeInfoToggleable($('#reviews_table').parent().parent());
           ExtraInfo.showExtraInfoForIds(Gazelle.groupIds());
           if (Gazelle.isViewGroup()) {
             // Also show info for titles matching current page and set their groupId
