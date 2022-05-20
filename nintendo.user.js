@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Nintendo Uploady
 // @namespace    https://gazellegames.net/
-// @version      1.1.1
+// @version      1.1.2
 // @description  Uploady for Nintendo sites
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
@@ -22,7 +22,7 @@
 
 'use strict';
 
-const JP_YOUTUBE_THUMB_RE = /img.youtube.com\/vi\/(mygwxDnxnYQ)\//;
+const JP_YOUTUBE_THUMB_RE = /img.youtube.com\/vi\/([^\/]+)\//;
 
 function getGameInfoJP() {
   const nintendo = new GameInfo();
