@@ -174,9 +174,9 @@ function getGameInfoUK() {
 
   const factory = new UploadyFactory();
   factory.build(
-    '(US)',
-    (title) => `https://www.nintendo.com/search/?q=${title}&p=1&cat=gme&sort=df`,
-    (resolve) => resolve(getGameInfoUS()),
+    'Search Nintendo (UK)',
+    (title) => `https://www.nintendo.co.uk/Search/Search-299117.html?q=${title}`,
+    (resolve) => resolve(getGameInfoUK()),
   );
   factory.build(
     '(JP)',
@@ -184,8 +184,8 @@ function getGameInfoUK() {
     (resolve) => resolve(getGameInfoJP()),
   );
   factory.build(
-    'Search Nintendo (UK)',
-    (title) => `https://www.nintendo.co.uk/Search/Search-299117.html?q=${title}`,
-    (resolve) => resolve(getGameInfoUK()),
+    '(US)',
+    (title) => `https://www.nintendo.com/search/?q=${title}&p=1&cat=gme&sort=df`,
+    (resolve) => resolve(getGameInfoUS()),
   );
 })();

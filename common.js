@@ -912,28 +912,32 @@ const {
       if (window.location.hostname === 'gazellegames.net') {
         const uploady = this;
         const titleFieldSelector = 'input[name="title"], input[name="name"]';
-        $(titleFieldSelector).after(
-          $('<input type="button" />')
-            .val(searchButtonName)
-            .click(() => {
-              const title = $(titleFieldSelector).val();
-              if (!title) return;
-              const titleURIComponent = encodeURIComponent(title);
-              const searchUrl = urlBuilder(titleURIComponent);
+        $(titleFieldSelector)
+          .parent()
+          .children('input')
+          .last()
+          .after(
+            $('<input type="button" />')
+              .val(searchButtonName)
+              .click(() => {
+                const title = $(titleFieldSelector).val();
+                if (!title) return;
+                const titleURIComponent = encodeURIComponent(title);
+                const searchUrl = urlBuilder(titleURIComponent);
 
-              GM_setValue('uploady-key', uploady.#key);
-              window.open(searchUrl, '_blank', 'popup=0,rel=noreferrer');
-              $(window).on(`focus.uploady${uploady.#key}`, () => {
-                if (GM_getValue(uploady.#key)) {
-                  $(window).off(`focus.uploady${uploady.#key}`);
-                  uploady.#info = GameInfo.fromJSONString(GM_getValue(uploady.#key));
-                  uploady.#updateInfo();
-                  uploady.#showExtraInfo();
-                  GM_deleteValue(uploady.#key);
-                }
-              });
-            }),
-        );
+                GM_setValue('uploady-key', uploady.#key);
+                window.open(searchUrl, '_blank', 'popup=0,rel=noreferrer');
+                $(window).on(`focus.uploady${uploady.#key}`, () => {
+                  if (GM_getValue(uploady.#key)) {
+                    $(window).off(`focus.uploady${uploady.#key}`);
+                    uploady.#info = GameInfo.fromJSONString(GM_getValue(uploady.#key));
+                    uploady.#updateInfo();
+                    uploady.#showExtraInfo();
+                    GM_deleteValue(uploady.#key);
+                  }
+                });
+              }),
+          );
       } else if (new URL(urlBuilder('test')).hostname === window.location.hostname) {
         const uploadyKey = GM_getValue('uploady-key', window.sessionStorage.uploadyKey);
         if (!uploadyKey) {
