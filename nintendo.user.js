@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Nintendo Uploady
 // @namespace    https://gazellegames.net/
-// @version      1.1.0
+// @version      1.1.1
 // @description  Uploady for Nintendo sites
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
