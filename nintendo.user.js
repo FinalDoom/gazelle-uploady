@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Nintendo Uploady
 // @namespace    https://gazellegames.net/
-// @version      1.1.2
+// @version      1.1.3
 // @description  Uploady for Nintendo sites
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*
@@ -83,23 +83,28 @@ ${descriptionHtml}
 function getGameInfoUS() {
   const nintendo = new GameInfo();
 
-  nintendo.platform = $('[class^=Herostyles__HeroSection] [class^=PlatformLabelstyles__StyledPlatform] span')
+  nintendo.platform = $('[class^="Herostyles__HeroSection"] [class^="PlatformLabelstyles__StyledPlatform"] span')
     .text()
     .trim();
-  nintendo.title = $('[class^=Breadcrumbsstyles__StyledNav] li:last-of-type').text().trim();
-  const publisher = $('[class^=ProductInfostyles__InfoRow]:contains("Publisher") [class^=ProductInfostyles__InfoDescr]')
+  nintendo.title = $('[class^="Breadcrumbsstyles__StyledNav"] li:last-of-type').text().trim();
+  const publisher = $(
+    '[class^="ProductInfostyles__InfoRow"]:contains("Publisher") [class^="ProductInfostyles__InfoDescr"]',
+  )
     .text()
     .trim();
   nintendo.addLanguage(
-    ...$('[class^=ProductInfostyles__InfoRow]:contains("Supported languages") [class^=ProductInfostyles__InfoDescr]')
-      .text()
-      .toArray()
-      .split(', '),
+    ...$(
+      '[class^="ProductInfostyles__InfoRow"]:contains("Supported languages") [class^="ProductInfostyles__InfoDescr"] div',
+    )
+      .map(function () {
+        return $(this).text().trim();
+      })
+      .toArray(),
   );
-  nintendo.description = $('[class^=ReadMorestyles__ReadMore] [class^=RichTextstyles__Html]').html();
+  nintendo.description = $('[class^="ReadMorestyles__ReadMore"] [class^="RichTextstyles__Html"]').html();
 
   nintendo.addTag(
-    ...$('[class^=ProductInfostyles__InfoRow]:contains("Genre") [class^=ProductInfostyles__InfoDescr] div')
+    ...$('[class^="ProductInfostyles__InfoRow"]:contains("Genre") [class^="ProductInfostyles__InfoDescr"] div')
       .map(function () {
         return $(this).text();
       })
@@ -107,14 +112,14 @@ function getGameInfoUS() {
       .filter((lang) => lang !== 'Other'),
   );
   nintendo.year = $(
-    '[class^=ProductInfostyles__InfoRow]:contains("Release date") [class^=ProductInfostyles__InfoDescr]',
+    '[class^="ProductInfostyles__InfoRow"]:contains("Release date") [class^="ProductInfostyles__InfoDescr"]',
   ).text();
   nintendo.rating = $(
-    '[class^=ProductInfostyles__InfoRow]:contains("ESRB rating") [class^=ProductInfostyles__InfoDescr]',
+    '[class^="ProductInfostyles__InfoRow"]:contains("ESRB rating") [class^="ProductInfostyles__InfoDescr"]',
   ).text();
 
   const imageBiggerer = /(c_scale)[^\/]+/;
-  const images = $('[class*=MediaGallerystyles__ModalCarousel] .slider-slide img');
+  const images = $('[class*="MediaGallerystyles__ModalCarousel"] .slider-slide img');
   nintendo.cover = images.first().attr('src').replace(imageBiggerer, '$1') + '.jpg';
   nintendo.addScreenshot(
     ...images
