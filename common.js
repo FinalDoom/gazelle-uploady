@@ -428,6 +428,8 @@ const {
     [Rating.PEGI7, /ESRB.* E(!10|C)/],
     [Rating.PEGI3, /ESRB.* EC/],
     // TODO more US ones
+    [Rating.PEGI16, /Mature/],
+    [Rating.PEGI12, /Teen/],
     [Rating.PEGI12, /Everyone 10\+/],
     [Rating.PEGI3, /Everyone 3\+/],
     [Rating.PEGI7, /Everyone(?! 3| 10)/],
