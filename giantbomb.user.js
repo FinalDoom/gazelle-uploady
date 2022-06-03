@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GazelleGames Giantbomb Uploady
 // @namespace    https://gazellegames.net/
-// @version      1.0.7
+// @version      1.0.8
 // @description  Uploady for giantbomb
 // @author       FinalDoom
 // @match        https://gazellegames.net/upload.php*

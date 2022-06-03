@@ -22,6 +22,33 @@ const camelToTitleCase = (text) => {
   return result.charAt(0).toUpperCase() + result.slice(1);
 };
 
+$.extend({
+  /**
+   * Replace the tag of a passed element, stripping properties unless keepProps = true
+   *
+   * @param {Element} currentElem element to replace the tag on
+   * @param {string | jQuery} newTagObj tag to replace with
+   * @param {bool} keepProps true to keep the properties of the original
+   * @returns jQuery
+   */
+  replaceTag: function (currentElem, newTagObj, keepProps) {
+    var $currentElem = $(currentElem);
+    var i,
+      $newTag = $(newTagObj).clone();
+    if (keepProps) {
+      //{{{
+      newTag = $newTag[0];
+      newTag.className = currentElem.className;
+      $.extend(newTag.classList, currentElem.classList);
+      $.extend(newTag.attributes, currentElem.attributes);
+    } //}}}
+    $currentElem.wrapAll($newTag);
+    $currentElem.contents().unwrap();
+    // return node; (Error spotted by Frank van Luijn)
+    return this; // Suggested by ColeLawrence
+  },
+});
+
 $.fn.extend({
   /**
    * @returns jQuery object with all child links turned into absolute references
@@ -34,6 +61,19 @@ $.fn.extend({
       return this;
     });
     return this;
+  },
+  /**
+   * Replace the tag of all matched elements, stripping properties unless keepProps = true
+   *
+   * @param {string | jQuery} newTagObj tag to replace the tags in this jQuery with
+   * @param {bool} keepProps true to keep the properties of the replaced tag
+   * @returns jQuery
+   */
+  replaceTag: function (newTagObj, keepProps) {
+    // "return" suggested by ColeLawrence
+    return this.each(function () {
+      jQuery.replaceTag(this, newTagObj, keepProps);
+    });
   },
 });
 
@@ -405,12 +445,12 @@ const {
   //
   class Rating extends MatchHandler {}
   Object.defineProperties(Rating, {
-    PEGI3: {value: 1},
-    PEGI7: {value: 3},
-    PEGI12: {value: 5},
-    PEGI16: {value: 7},
-    PEGI18: {value: 9},
-    N_A: {value: 13},
+    PEGI3: {value: '3+'},
+    PEGI7: {value: '7+'},
+    PEGI12: {value: '12+'},
+    PEGI16: {value: '16+'},
+    PEGI18: {value: '18+'},
+    N_A: {value: 'N/A'},
   });
   const RATINGS = new Rating();
 
@@ -673,6 +713,14 @@ const {
           typeof value === 'object' && Symbol.iterator in value ? Array.from(value).join(', ') : value,
         ]),
       );
+
+      window.addEventListener('storage', this.#storageListener);
+    }
+
+    #storageListener(event) {
+      if (event.key === 'uploadyExtraInfo') {
+        this.#extraInfo = JSON.parse(a.newValue);
+      }
     }
 
     /**
@@ -978,8 +1026,13 @@ const {
      * @param {bool} allowEmpty true to skip the error check and not mark field error when no value
      */
     static fillField(selector, value, required = true) {
-      if (value) $(selector).val(value).focus().blur();
-      else if (required) $(selector).addClass('error');
+      if (value) {
+        if ($(selector).is('select')) {
+          $(selector).find(`option:contains('${value}')`).prop('selected', true);
+        } else {
+          $(selector).val(value).focus().blur();
+        }
+      } else if (required) $(selector).addClass('error');
     }
 
     /**
@@ -1112,7 +1165,6 @@ const {
             $('#dnu_header').parent().hide();
           }
 
-          console.log('resgsgasdgfasfasd');
           this.#makeInfoToggleable($('#reviews_table').parent().parent());
           ExtraInfo.showExtraInfoForIds(Gazelle.groupIds());
           if (Gazelle.isViewGroup()) {
@@ -1207,16 +1259,18 @@ const {
      */
     static groupIds() {
       return (
-        (Gazelle.isViewGroup() && [
-          new URLSearchParams(window.location.search).get('id'),
-          ...$('#grouplinks a')
-            .map(function () {
-              return new URLSearchParams($(this).attr('href').split('?')[1]).get('id');
-            })
-            .toArray(),
-        ]) ||
-        (Gazelle.isEditGroup() && [new URLSearchParams(window.location.search).get('groupid')]) ||
-        ((Gazelle.isEditRelease() || Gazelle.isUploadRelease()) && [$('input[name="groupid"]').val()])
+        (Gazelle.isViewGroup() &&
+          [
+            new URLSearchParams(window.location.search).get('id'),
+            ...$('#grouplinks a')
+              .map(function () {
+                return new URLSearchParams($(this).attr('href').split('?')[1]).get('id');
+              })
+              .toArray(),
+          ].filter((id) => id)) ||
+        (Gazelle.isEditGroup() && [new URLSearchParams(window.location.search).get('groupid')].filter((id) => id)) ||
+        ((Gazelle.isEditRelease() || Gazelle.isUploadRelease()) &&
+          [$('input[name="groupid"]').val()].filter((id) => id))
       );
     }
   }
